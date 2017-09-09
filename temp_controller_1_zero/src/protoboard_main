@@ -1,0 +1,222 @@
+#include "Arduino.h"
+
+//Sample using LiquidCrystal I2C library
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+/*******************************************************
+
+This program will test the LCD panel and the buttons
+
+********************************************************/
+
+// setup either PCF8574 and 8574A IO expander to drive LCD
+LiquidCrystal_I2C lcd_8574(0x20,16,2);  // set the LCD address to 0x20 (8574) for a 16 chars and 2 line display
+//LiquidCrystal_I2C //lcd_8574A(0x38,16,2);// set the LCD address to 0x38 (8574A) for a 16 chars and 2 line display
+
+// define some values used by the panel and buttons
+int lcd_key     = 0;
+int adc_key_in  = 0;
+int POT = 0;
+//int servopos = 0;
+int brightness = 0;
+
+
+
+#define btnRIGHT  0
+#define btnUP     1
+#define btnDOWN   2
+#define btnLEFT   3
+#define btnSELECT 4
+#define btnNONE   5
+
+// read the buttons
+int read_LCD_buttons()
+{
+ adc_key_in = analogRead(0);      // read the value from the sensor
+ if (adc_key_in > 1000) return btnNONE; // this is the 1st option for speed reasons: it will be the most likely result
+ // For V1.1 us this threshold
+ if (adc_key_in < 50)   return btnRIGHT;
+ if (adc_key_in < 250)  return btnUP;
+ if (adc_key_in < 450)  return btnDOWN;
+ if (adc_key_in < 650)  return btnLEFT;
+ if (adc_key_in < 850)  return btnSELECT;
+
+ return btnNONE;  // when all others fail, return this...
+}
+
+void setup()
+{
+
+ //init LCD on 8574
+ lcd_8574.begin();
+ lcd_8574.backlight();
+
+
+  //init LCD on 8574A
+ //lcd_8574A.begin();
+ //lcd_8574A.backlight();
+
+
+ pinMode(11,OUTPUT);
+ pinMode(12,OUTPUT);
+ digitalWrite(10,LOW);
+
+ lcd_8574.setBacklight(HIGH);  //write to LCD on PCF8574
+ //lcd_8574A.setBacklight(HIGH); //write to LCD on PCF8574A
+
+ lcd_8574.setCursor(0,0);
+ //lcd_8574A.setCursor(0,0);
+ lcd_8574.print("www.Gtronics.NET"); // print a simple message to LCD on PCF8574
+ //lcd_8574A.print("www.Gtronics.NET"); // print a simple message to LCD on PCF8574A
+ lcd_8574.setCursor(0,1);
+ //lcd_8574A.setCursor(0,1);
+ lcd_8574.print("ProtoShield PLUS");  // print a simple message to LCD on PCF8574
+ //lcd_8574A.print("ProtoShield PLUS"); // print a simple message to LCD on PCF8574A
+
+
+ long lsttime = millis(); //declare lsttimt
+ const long dly = 2000; //set delay time
+ lcd_key = read_LCD_buttons();  // read the buttons
+ while (lcd_key==btnNONE){
+  lcd_key = read_LCD_buttons();  // read the buttons
+  if ((millis()-lsttime)>dly) lcd_key=btnRIGHT; //force exit
+ }
+
+ lcd_8574.clear();
+ //lcd_8574A.clear();
+
+ delay (200); //rought debouce
+
+ //wait button release
+ lsttime=millis();
+ while (lcd_key!=btnNONE){
+  lcd_key = read_LCD_buttons();  // read the buttons
+  if ((millis()-lsttime)>dly) lcd_key=btnRIGHT; //force exit
+ }
+
+ lcd_8574.setCursor(0,1);
+ //lcd_8574A.setCursor(0,1);
+ lcd_8574.print("press any button");  // print a simple message to LCD on PCF8574
+ //lcd_8574A.print("press any button"); // print a simple message to LCD on PCF8574A
+
+ int state = 0; //declare and init state machine
+ lcd_key = read_LCD_buttons();  // read the buttons
+ while (lcd_key==btnNONE){
+    lcd_key = read_LCD_buttons();  // read the buttons
+    switch (state){
+
+      case 0: //display if LCD is on PCF8574 or PCF8574A
+        lcd_8574.setCursor(0,0);
+        //lcd_8574A.setCursor(0,0);
+        lcd_8574.print("LCD ON PCF8574  ");
+        //lcd_8574A.print("LCD ON PCF8574A ");
+        lsttime=millis();
+        state=1;
+        break;
+
+      case 1: //wait timeint milliseconds
+        if ((millis()-lsttime)>dly) state=2;
+        break;
+
+      case 2: //display base address of PCF8574 (0x20) or PCF8574A (0x38)
+        lcd_8574.setCursor(0,0);
+        //lcd_8574A.setCursor(0,0);
+        lcd_8574.print("BASE ADR 0x20   ");  // print a simple message to LCD on PCF8574
+        //lcd_8574A.print("BASE ADR 0x38   "); // print a simple message to LCD on PCF8574A
+        lsttime=millis();
+        state=3;
+        break;
+
+      case 3: //wait timeint milliseconds
+        if ((millis()-lsttime)>dly) state=0;
+        break;
+     }
+
+ }
+
+
+ lcd_8574.clear();
+ ////lcd_8574A.clear();
+ delay (300);
+ lcd_8574.setCursor(0,0);
+ ////lcd_8574A.setCursor(0,0);
+ lcd_8574.print("Push the buttons");  // print a simple message
+ ////lcd_8574A.print("Push the buttons"); // print a simple message
+
+
+}
+
+void loop()
+{
+
+ lcd_8574.setCursor(13,1);
+ ////lcd_8574A.setCursor(13,1);
+ POT = analogRead(1);         // read the value from POT
+ brightness = (POT/4);        //scale POT to 0-255
+ if(brightness>128){
+   lcd_8574.setBacklight(HIGH);
+   //lcd_8574A.setBacklight(HIGH);
+ }
+ else{
+   lcd_8574.setBacklight(LOW);
+   ////lcd_8574A.setBacklight(LOW);
+ }
+ lcd_8574.print(brightness);    // write POT value on PCF8574 LCD
+ //lcd_8574A.print(brightness);   // write POT value on PCF8574A LCD
+ lcd_8574.setCursor(0,1);       // move to the begining of the second line
+ //lcd_8574A.setCursor(0,1);      // move to the begining of the second line
+ lcd_key = read_LCD_buttons();  // read the buttons
+ switch (lcd_key)               // depending on which button was pushed, we perform an action
+ {
+   case btnRIGHT:
+     {
+     lcd_8574.print("BTN = RIGHT  ");
+     //lcd_8574A.print("BTN = RIGHT  ");
+     digitalWrite(11,LOW);
+     digitalWrite(12,LOW);
+     break;
+     }
+   case btnLEFT:
+     {
+     lcd_8574.print("BTN = LEFT   ");
+     //lcd_8574A.print("BTN = LEFT   ");
+     digitalWrite(11,HIGH);
+     digitalWrite(12,LOW);
+     break;
+     }
+   case btnUP:
+     {
+     lcd_8574.print("BTN = UP     ");
+     //lcd_8574A.print("BTN = UP     ");
+     digitalWrite(11,LOW);
+     digitalWrite(12,LOW);
+     break;
+     }
+   case btnDOWN:
+     {
+     lcd_8574.print("BTN = DOWN   ");
+     //lcd_8574A.print("BTN = DOWN   ");
+     digitalWrite(12,LOW);
+     digitalWrite(11,LOW);
+     break;
+     }
+   case btnSELECT:
+     {
+     lcd_8574.print("BTN = SELECT  ");
+     //lcd_8574A.print("BTN = SELECT  ");
+     digitalWrite(12,HIGH);
+     digitalWrite(11,LOW);
+     break;
+     }
+     case btnNONE:
+     {
+     lcd_8574.print("BTN = NONE    ");
+     //lcd_8574A.print("BTN = NONE    ");
+     digitalWrite(11,LOW);
+     digitalWrite(12,LOW);
+     break;
+     }
+ }
+
+}
