@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configurator numberOfStateToKeep="30">
+    <Pointcloud colorRed="1" colorGreen="1" colorBlue="1" colorAlpha="1" pointsize="1"/>
+    <Device useLocalSensors="1" tcpHostName="127.0.0.1" tcpPort="49674" currentDeviceVendor="3" currentDeviceName="0005-1209-0034-1101" autoPlay="0"/>
+    <SensorHandler>
+        <sensorColorMap size="2">
+            <sensorColorEntry id="2" colorRed="100" colorGreen="100" colorBlue="100" colorAlpha="100"/>
+            <sensorColorEntry id="3" colorRed="100" colorGreen="100" colorBlue="100" colorAlpha="100"/>
+        </sensorColorMap>
+        <sensorHiddenMap size="2">
+            <sensorHiddenEntry id="2" hidden="0"/>
+            <sensorHiddenEntry id="3" hidden="0"/>
+        </sensorHiddenMap>
+        <sensorTypeMap size="2">
+            <sensorTypeEntry id="2" type="2"/>
+            <sensorTypeEntry id="3" type="2"/>
+        </sensorTypeMap>
+        <sensorFollowStructMap size="2">
+            <sensorFollowStructEntry id="2" followSensorShiftX="0" followSensorShiftY="0" followSensorShiftZ="0" anchorSensor="0"/>
+            <sensorFollowStructEntry id="3" followSensorShiftX="0" followSensorShiftY="0" followSensorShiftZ="0" anchorSensor="0"/>
+        </sensorFollowStructMap>
+    </SensorHandler>
+    <ProcessItem processId="2017/09/09/28354106" processItemListName="Warning-alert" processName="C:/Users/Blackrental/eclipse-workspace/WeCane/Debug/WeCane.exe" processParameters="2" processType="3"/>
+    <ProcessItem processId="2017/09/09/29818385" processItemListName="Danger-alert" processName="C:/Users/Blackrental/eclipse-workspace/WeCane/Debug/WeCane.exe" processParameters="1" processType="3"/>
+    <ConnexionHandler>
+        <sensorSensorConnectionPositionVector size="0"/>
+        <sensorActionConnectionPositionVector size="2">
+            <sensorActionConnectionPositionEntry id="10" position="0"/>
+            <sensorActionConnectionPositionEntry id="11" position="1"/>
+        </sensorActionConnectionPositionVector>
+        <SensorActionConnection id="10" connectionName="Warning-connect" senderId="2" sensorActionType="2" enabled="1" processListItemId="2017/09/09/28354106" timeBetweenExecution="0">
+            <Names>
+                <Name value="Warning-connect_Active"/>
+            </Names>
+            <SenderPtrs>
+                <SenderPtr senderType="0" buttonEvent="2" senderName="Warning"/>
+            </SenderPtrs>
+            <ReceivePtrs>
+                <ReceiverPtr receiverType="2" processAction="0"/>
+            </ReceivePtrs>
+        </SensorActionConnection>
+        <SensorActionConnection id="11" connectionName="Danger-connection" senderId="3" sensorActionType="2" enabled="1" processListItemId="2017/09/09/29818385" timeBetweenExecution="0">
+            <Names>
+                <Name value="Danger-connection_Active"/>
+            </Names>
+            <SenderPtrs>
+                <SenderPtr senderType="0" buttonEvent="2" senderName="Danger"/>
+            </SenderPtrs>
+            <ReceivePtrs>
+                <ReceiverPtr receiverType="2" processAction="0"/>
+            </ReceivePtrs>
+        </SensorActionConnection>
+    </ConnexionHandler>
+</Configurator>
